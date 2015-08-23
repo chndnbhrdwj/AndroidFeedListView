@@ -1,8 +1,8 @@
 package com.android.chandan.myapp;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,23 +39,23 @@ public class MainActivity extends AppCompatActivity {
         songs =(Button)findViewById(R.id.buttonSongs);
         clear =(Button)findViewById(R.id.buttonClearApps);
 
+        new GetData().execute(topApps, topSongs, topMovies);
 
         apps.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                new GetData().execute(topApps);
-                setupView();
+                setupView(appsXml);
             }
         });
         songs.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new GetData().execute(topSongs);
-                setupView();
+                setupView(songsXml);
             }
         });
         movies.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new GetData().execute(topMovies);
-                setupView();
+                setupView(moviesXml);
             }
         });
         clear.setOnClickListener(new View.OnClickListener() {
@@ -65,64 +66,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupView(){
-        parser= new ParseTop10Xml(appsXml);
+    private void setupView(String xmlData) {
+        parser = new ParseTop10Xml(xmlData);
         if (parser.process()) {
             ArrayList<Application> allApps = parser.getApplications();
             ArrayAdapter<Application> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.allapps_layout, allApps);
             listViewApps.setVisibility(listViewApps.VISIBLE);
             listViewApps.setAdapter(adapter);
-        }
-    }
-
-    private class GetData extends AsyncTask<String,Void,String>{
-
-        @Override
-        protected String doInBackground(String... urls) {
-            try{
-                appsXml= downloadXml(urls[0]);
-            }catch (IOException e){
-                return "Unable to download xml.";
-            }
-            return appsXml;
-        }
-
-        private String downloadXml(String theUrl) throws IOException{
-            int BUFFERSIZE=2000;
-            InputStream is=null;
-            String xmlContents="";
-
-            try{
-                URL url = new URL(theUrl);
-                HttpURLConnection conn =(HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setReadTimeout(10000);
-                conn.setConnectTimeout(15000);
-                conn.setDoInput(true);
-
-                Log.d("DownloadXml", "Response is " + conn.getResponseCode());
-
-                is= conn.getInputStream();
-                InputStreamReader isr= new InputStreamReader(is);
-                int charRead;
-                char[] inputBuffer = new char[BUFFERSIZE];
-
-                try{
-                    while ((charRead=isr.read(inputBuffer))>0){
-                        String readString= String.copyValueOf(inputBuffer,0,charRead);
-                        xmlContents +=readString;
-                        inputBuffer = new char[BUFFERSIZE];
-                    }
-                    return xmlContents;
-
-                }catch (IOException e){
-                    e.printStackTrace();
-                    return null;
-                }
-            }finally {
-                if(is != null)
-                is.close();
-            }
         }
     }
 
@@ -146,5 +96,64 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class GetData extends AsyncTask<String, Void, Object> {
+
+        @Override
+        protected Object doInBackground(String... urls) {
+            try {
+                for (String url : urls) {
+                    if (url.contains("topsongs")) {
+                        songsXml = downloadXml(url);
+                    } else if (url.contains("topfreeapplications")) {
+                        appsXml = downloadXml(url);
+                    } else if (url.contains("topMovies")) {
+                        moviesXml = downloadXml(url);
+                    }
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
+            return new Object();
+        }
+
+        private String downloadXml(String theUrl) throws IOException {
+            int BUFFERSIZE = 2000;
+            InputStream is = null;
+            String xmlContents = "";
+
+            try {
+                URL url = new URL(theUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setDoInput(true);
+
+                Log.d("DownloadXml", "Response is " + conn.getResponseCode());
+
+                is = conn.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                int charRead;
+                char[] inputBuffer = new char[BUFFERSIZE];
+
+                try {
+                    while ((charRead = isr.read(inputBuffer)) > 0) {
+                        String readString = String.copyValueOf(inputBuffer, 0, charRead);
+                        xmlContents += readString;
+                        inputBuffer = new char[BUFFERSIZE];
+                    }
+                    return xmlContents;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            } finally {
+                if (is != null)
+                    is.close();
+            }
+        }
     }
 }
