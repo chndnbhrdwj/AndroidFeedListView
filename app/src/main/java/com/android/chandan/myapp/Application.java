@@ -7,6 +7,15 @@ public class Application {
     private String artist;
     private String price;
     private String name;
+    private String uri;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
     public String getArtist() {
         return artist;
@@ -32,9 +41,9 @@ public class Application {
         this.name = name;
     }
 
-    public String toString(){
-        return "Name: "+ this.getName()+ "\n"+
-                "Artist: "+this.getArtist()+ "\n"+
-                "Price: "+this.getPrice()+"\n";
+    public String toString() {
+        return "Name: " + this.getName() + "\n" +
+                "Artist: " + this.getArtist() + "\n" +
+                "Price: " + this.getPrice() + "\n";
     }
 }

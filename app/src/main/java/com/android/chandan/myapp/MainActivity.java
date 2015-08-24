@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -22,22 +21,22 @@ public class MainActivity extends AppCompatActivity {
 
     ListView listViewApps;
     Button apps, movies, songs, clear;
-    String appsXml,songsXml,moviesXml;
-    String topSongs="http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml";
-    String topApps="http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml";
-    String topMovies="http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topMovies/xml";
+    String appsXml, songsXml, moviesXml;
+    String topSongs = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml";
+    String topApps = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml";
+    String topMovies = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topMovies/xml";
     ParseTop10Xml parser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listViewApps = (ListView)findViewById(R.id.listViewApps);
+        listViewApps = (ListView) findViewById(R.id.listViewApps);
 
-        apps =(Button)findViewById(R.id.buttonApps);
-        movies =(Button)findViewById(R.id.buttonMovies);
-        songs =(Button)findViewById(R.id.buttonSongs);
-        clear =(Button)findViewById(R.id.buttonClearApps);
+        apps = (Button) findViewById(R.id.buttonApps);
+        movies = (Button) findViewById(R.id.buttonMovies);
+        songs = (Button) findViewById(R.id.buttonSongs);
+        clear = (Button) findViewById(R.id.buttonClearApps);
 
         new GetData().execute(topApps, topSongs, topMovies);
 
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         parser = new ParseTop10Xml(xmlData);
         if (parser.process()) {
             ArrayList<Application> allApps = parser.getApplications();
-            ArrayAdapter<Application> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.allapps_layout, allApps);
+            CustomArrayAdapter adapter = new CustomArrayAdapter(MainActivity.this, allApps);
             listViewApps.setVisibility(listViewApps.VISIBLE);
             listViewApps.setAdapter(adapter);
         }
